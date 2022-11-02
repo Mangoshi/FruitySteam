@@ -1,23 +1,26 @@
 const express = require('express');
 const router = express.Router();
 
-const { 
+const {
+    registerUser,
+    loginUser,
     readUsers,
     readOneUser,
-    registerUser,
     updateUser,
-    deleteUser
-  } = require('../controllers/user_controller');
+    deleteUser,
+} = require('../controllers/user_controller');
+
+const { adminRequired } = require('../controllers/auth_controller')
 
 router
     // Unauthenticated
-    .post('/', registerUser)
+    .post('/register', registerUser)
+    .post('/login', loginUser)
 
     // Admin
-    // TODO: adminRequired
-    .get('/', readUsers)
-    .get('/:id', readOneUser)
-    .put('/:id', updateUser)
-    .delete('/:id', deleteUser);
+    .get('/', adminRequired, readUsers)
+    .get('/:id', adminRequired, readOneUser)
+    .put('/:id', adminRequired, updateUser)
+    .delete('/:id', adminRequired, deleteUser);
 
 module.exports = router;

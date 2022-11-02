@@ -23,6 +23,13 @@ const userSchema = new Schema({
         type: String,
         required: [true, 'Password is required!']
     },
+    role: {
+        type: String,
+        // default role is basic (not admin)
+        default: "basic",
+        lowercase: true,
+        required: [true, 'Role is required!']
+    }
 }, {
     // created/updated timestamps will be automatically made
     timestamps: true

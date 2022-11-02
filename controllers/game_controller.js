@@ -13,10 +13,10 @@ const readGames = (req, res) => {
             console.log(data);
             if(data.length > 0){
                 res.status(200).json({
-                    "msg" : `First ${limit} games retrieved`,
+                    "msg" : `First ${limit ? limit : 1000} games retrieved`,
                     "data": data
                 });
-                console.log(`First ${limit} games retrieved`);
+                console.log(`First ${limit ? limit : 1000} games retrieved`);
             }
             else{
                 res.status(404).json({

@@ -41,12 +41,14 @@ const loginUser = (req, res) => {
             }
             // Respond with a token
             res.json({
-                // Sign the token with jsonwebtoken using a payload of username, email & id, and 'audiohaven' as our secret-key
+                // Sign the token with jsonwebtoken using a payload of username, email, role & id,
+                // using 'steamedFruit' as our secret-key.
                 token: jwt.sign({
                     username: user.username,
                     email: user.email,
+                    role: user.role,
                     _id: user._id
-                }, 'audiohaven')
+                }, 'steamedFruit')
             })
         })
         // If an error occurs, catch & throw the error
@@ -94,22 +96,6 @@ const deleteUser = (req, res) => {
     });
 };
 
-//// Router -> Controller Middleware ////
-const loginRequired = (req, res, next) => {
-    // If the user exists, move on
-    if(req.user){
-        next()
-    }
-    // Else if the user doesn't exist
-    else{
-        // Respond with a status 401: Unauthorized...
-        return res.status(401).json({
-            // ...and return this message
-            message: 'Unauthorized user!'
-        })
-    }
-}
-
 module.exports = {
     registerUser,
     loginUser,
@@ -117,7 +103,6 @@ module.exports = {
     readOneUser,
     updateUser,
     deleteUser,
-    loginRequired,
 };
 
 

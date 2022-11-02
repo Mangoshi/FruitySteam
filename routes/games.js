@@ -12,18 +12,21 @@ const {
     deleteGameByAppID
   } = require('../controllers/game_controller');
 
+const { loginRequired, adminRequired } = require('../controllers/auth_controller')
+
 router
     // Unauthenticated
     .get('/', readGames)
-    .get('/id/:id', readGameByID)
-    .get('/app_id/:id', readGameByAppID)
-    .get('/name/:name', readGameByName)
+
+    // Authenticated
+    .get('/id/:id', loginRequired, readGameByID)
+    .get('/app_id/:id', loginRequired, readGameByAppID)
+    .get('/name/:name', loginRequired, readGameByName)
 
     // Admin
-    // TODO: adminRequired
-    .post('/', createGame)
-    .put('/id/:id', updateGameByID)
-    .put('/app_id/:id', updateGameByAppID)
-    .delete('/app_id/:id', deleteGameByAppID);
+    .post('/', adminRequired, createGame)
+    .put('/id/:id', adminRequired, updateGameByID)
+    .put('/app_id/:id', adminRequired, updateGameByAppID)
+    .delete('/app_id/:id', adminRequired, deleteGameByAppID);
 
 module.exports = router;
