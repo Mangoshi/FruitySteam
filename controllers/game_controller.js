@@ -3,20 +3,23 @@ const Game = require('../models/game_schema');
 // Read all games (with optional limit) //
 const readGames = (req, res) => {
 
-    let limit = req.query.limit
-
     // Setting a default limit of 1000 for now as the entire DB is very large (over 63,000 games)
     // If "?limit=x" is used, it will return that amount instead.
+    let limit = req.query.limit ? req.query.limit : 1000
+    // Default: AppID
+    let sortBy = req.query.sort ? req.query.sort : 'AppID'
+    // Default: Ascending
+    let direction = req.query.direction ? req.query.direction : 1
 
-    Game.find().sort({'AppID': +1}).limit(limit ? limit : 1000)
+    Game.find().sort([[sortBy, direction]]).limit(limit)
         .then((data) => {
             console.log(data);
             if(data.length > 0){
                 res.status(200).json({
-                    "msg" : `First ${limit ? limit : 1000} games retrieved`,
+                    "msg" : `First ${limit} games retrieved`,
                     "data": data
                 });
-                console.log(`First ${limit ? limit : 1000} games retrieved`);
+                console.log(`First ${limit} games retrieved \nSorted by: ${sortBy} \nDirection: ${direction}`);
             }
             else{
                 res.status(404).json({
@@ -143,6 +146,7 @@ const createGame = (req, res) => {
     // console.log(req.body);
     let gameData = req.body;
 
+    // TODO: Implement AppID duplicate check
     Game.create(gameData)
         .then((data) => {
             console.log('New Game Created!', data);
