@@ -2,7 +2,6 @@ const Game = require('../models/game_schema');
 
 // Read all games (with optional limit) //
 const readGames = (req, res) => {
-
     // Setting a default limit of 1000 for now as the entire DB is very large (over 63,000 games)
     // If "?limit=x" is used, it will return that amount instead.
     let limit = req.query.limit ? req.query.limit : 1000
@@ -10,16 +9,20 @@ const readGames = (req, res) => {
     let sortBy = req.query.sort ? req.query.sort : 'AppID'
     // Default: Ascending
     let direction = req.query.direction ? req.query.direction : 1
+    // Default: 1
+    let page = req.query.page ? req.query.page : 1
 
-    Game.find().sort([[sortBy, direction]]).limit(limit)
+    // TODO: Figure out how to paginate without reaching memory limit! // .allowDiskUse(true) not working
+    Game.find().sort([[sortBy, direction]]).limit(limit).skip(limit*(page-1))
         .then((data) => {
             console.log(data);
             if(data.length > 0){
                 res.status(200).json({
-                    "msg" : `First ${limit} games retrieved`,
+                    "msg" : `${limit} games retrieved`,
+                    "page" : page,
                     "data": data
                 });
-                console.log(`First ${limit} games retrieved \nSorted by: ${sortBy} \nDirection: ${direction}`);
+                console.log(`${limit} games retrieved \nPage: ${page} \nSorted by: ${sortBy} \nDirection: ${direction}`);
             }
             else{
                 res.status(404).json({
