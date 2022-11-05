@@ -5,9 +5,12 @@ const {
     registerUser,
     loginUser,
     readUsers,
-    readOneUser,
-    updateUser,
-    deleteUser,
+    readUsersByRole,
+    readUserByID,
+    readUserByUsername,
+    readUserByEmail,
+    updateUserByID,
+    deleteUserByID,
 } = require('../controllers/user_controller');
 
 const { adminRequired } = require('../controllers/auth_controller')
@@ -19,8 +22,11 @@ router
 
     // Admin
     .get('/', adminRequired, readUsers)
-    .get('/:id', adminRequired, readOneUser)
-    .put('/:id', adminRequired, updateUser)
-    .delete('/:id', adminRequired, deleteUser);
+    .get('/role/:role', adminRequired, readUsersByRole)
+    .get('/id/:id', adminRequired, readUserByID)
+    .get('/username/:username', adminRequired, readUserByUsername)
+    .get('/email/:email', adminRequired, readUserByEmail)
+    .put('/id/:id', adminRequired, updateUserByID)
+    .delete('/id/:id', adminRequired, deleteUserByID)
 
 module.exports = router;

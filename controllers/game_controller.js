@@ -141,12 +141,12 @@ const readGameByName = (req, res) => {
 };
 
 // Create a game //
+// TODO: Implement AppID duplicate check
 const createGame = (req, res) => {
 
     // console.log(req.body);
     let gameData = req.body;
 
-    // TODO: Implement AppID duplicate check
     Game.create(gameData)
         .then((data) => {
             console.log('New Game Created!', data);
@@ -210,11 +210,13 @@ const updateGameByID = (req, res) => {
 };
 
 // Update a game by Steam AppID //
+// TODO: FIX
 const updateGameByAppID = (req, res) => {
 
     let id = req.params.id;
     let body = req.body;
 
+    // TODO: Figure out why it doesn't update by ID, but last game in DB
     Game.findOneAndUpdate(id, body, {
         AppID: id,
         new: true
@@ -252,10 +254,12 @@ const updateGameByAppID = (req, res) => {
 };
 
 // Delete a game by Steam AppID //
+// TODO: FIX
 const deleteGameByAppID = (req, res) => {
 
     let id = req.params.id;
 
+    // TODO: Figure out why it doesn't delete by ID, but last game in DB
     Game.deleteOne({ AppID: id })
         .then((data) => {
 

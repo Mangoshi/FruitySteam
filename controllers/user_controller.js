@@ -2,6 +2,7 @@ const User = require('../models/user_schema')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
+// TODO: Implement error message for duplicate entries
 const registerUser = (req, res) => {
     // assign newUser to a new User Object from user_schema, using the request body
     let newUser = new User(req.body)
@@ -20,7 +21,10 @@ const registerUser = (req, res) => {
             // remove hashed password before responding to the client
             user.password = undefined
             // return the new user to the client
-            return res.json(user)
+            return res.json({
+                msg: `Successfully registered ${user.username}!`,
+                data: user
+            })
         }
     })
 }
@@ -57,52 +61,255 @@ const loginUser = (req, res) => {
         })
 }
 
-// TODO: Fix up
 const readUsers = (req, res) => {
-    res.status(200).json({
-        "msg" : "All users retrieved"
-    });
+
+    let limit = req.query.limit
+    // Default: username
+    let sortBy = req.query.sort ? req.query.sort : 'username'
+    // Default: Ascending
+    let direction = req.query.direction ? req.query.direction : 1
+
+    // TODO: Try to apply filter type & filter text like find({filter:text})
+    User.find().sort([[sortBy, direction]]).limit(limit)
+        .then((data) => {
+            console.log(data);
+            if(data.length > 0){
+                res.status(200).json({
+                    "msg" : limit ? `First ${limit} users retrieved` : `All users retrieved`,
+                    "data": data
+                });
+                console.log(limit ? `First ${limit} users retrieved` : 'All users retrieved', `\nSorted by: ${sortBy} \nDirection: ${direction}`);
+            }
+            else{
+                res.status(404).json({
+                    "msg" : "No users found",
+                    "data": data
+                });
+                console.log("No users found");
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).json(err);
+        });
 };
 
-// TODO: Fix up
-const readOneUser = (req, res) => {
-    let id = req.params.id;
-    // connect to db and retrieve user with :id
+const readUsersByRole = (req, res) => {
+    let role = req.params.role;
 
-    res.status(200).json({
-        "msg" : `You retrieved user with ID: ${id}`
-    });
+    User.find({role:role})
+        .then((data) => {
+            if(data){
+                res.status(200).json({
+                    "msg": `Users with role: ${role} retrieved`,
+                    "data": data
+                });
+            }
+            else {
+                res.status(404).json({
+                    "message": `No users with role: ${role} found`
+                });
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+            if(err.name === 'CastError') {
+                res.status(400).json({
+                    "message": `Bad request, ${role} is not a valid role`
+                });
+            }
+            else {
+                res.status(500).json(err)
+            }
+        });
 };
 
-// TODO: Fix up
-const updateUser = (req, res) => {
+const readUserByID = (req, res) => {
     let id = req.params.id;
-    let data = req.body;
-    // connect to db and retrieve user with :id
-    // if user exists, validate the new user info, if all good update user
-    data.id = id;
-    res.status(200).json({
-        "msg" : `You edited user with ID: ${id}`,
-        "data" : data
-    });
+
+    // Connect to the database and retrieve user with :id
+    User.findById(id)
+        .then((data) => {
+            if(data){
+                res.status(200).json({
+                    "msg": `User with _id: ${id} retrieved`,
+                    "data": data
+                });
+            }
+            else {
+                res.status(404).json({
+                    "message": `User with _id: ${id} not found`
+                });
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+            if(err.name === 'CastError') {
+                res.status(400).json({
+                    "message": `Bad request, ${id} is not a valid _id`
+                });
+            }
+            else {
+                res.status(500).json(err)
+            }
+        });
 };
 
-// TODO: Fix up
-const deleteUser = (req, res) => {
+const readUserByUsername = (req, res) => {
+    let username = req.params.username;
+
+    User.findOne({ username : username })
+        .then((data) => {
+            if(data){
+                res.status(200).json({
+                    "msg": `User with username: ${username} retrieved`,
+                    "data": data
+                });
+            }
+            else {
+                res.status(404).json({
+                    "message": `User with username: ${username} not found`
+                });
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+            if(err.name === 'CastError') {
+                res.status(400).json({
+                    "message": `Bad request, ${username} is not a valid username`
+                });
+            }
+            else {
+                res.status(500).json(err)
+            }
+        });
+};
+
+const readUserByEmail = (req, res) => {
+    let email = req.params.email;
+
+    User.findOne({ email : email })
+        .then((data) => {
+            if(data){
+                res.status(200).json({
+                    "msg": `User with email: ${email} retrieved`,
+                    "data": data
+                });
+            }
+            else {
+                res.status(404).json({
+                    "message": `User with email: ${email} not found`
+                });
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+            if(err.name === 'CastError') {
+                res.status(400).json({
+                    "message": `Bad request, ${email} is not a valid email`
+                });
+            }
+            else {
+                res.status(500).json(err)
+            }
+        });
+};
+
+// TODO: FIX
+const updateUserByID = (req, res) => {
     let id = req.params.id;
-    // connect to db and retrieve user with :id and delete them
-    res.status(200).json({
-        "msg" : `You deleted user with ID: ${id}`
-    });
+    let body = req.body;
+
+    // use bcrypt to re-hash the password. hashSync(password, salt)
+    body.password = bcrypt.hashSync(req.body.password, 10)
+
+    // TODO: Figure out why it doesn't update by ID, but last user in DB
+    User.findOneAndUpdate(id, body, {
+        id: id,
+        new: true
+    })
+        .then((data) => {
+            console.log(data)
+            if(data){
+                data.password = undefined
+                res.status(201).json({
+                    msg: `Successfully updated ${data.username}!`,
+                    data: data
+                });
+                console.log(data, 'User Updated!');
+            }
+            else {
+                res.status(404).json({"message": `User with _id: ${id} not found`});
+                console.log('User Not Updated!');
+            }
+
+        })
+        .catch((err) => {
+            if(err.name === 'ValidationError'){
+                console.error('Validation Error!!', err);
+                res.status(422).json({
+                    "msg": "Validation Error",
+                    "error" : err.message
+                });
+            }
+            else if(err.name === 'CastError') {
+                res.status(400).json({
+                    "message": `Bad request, ${id} is not a valid _id`
+                });
+            }
+            else {
+                console.error(err);
+                res.status(500).json(err);
+            }
+        });
+};
+
+// TODO: FIX
+const deleteUserByID = (req, res) => {
+
+    let id = req.params.id;
+
+    // TODO: Figure out why it doesn't delete by ID, but last user in DB
+    User.deleteOne({ id : id })
+        .then((data) => {
+
+            if(data.deletedCount){
+                res.status(200).json({
+                    "message": `User with _id: ${id} deleted successfully`
+                });
+                console.log("User Deleted!")
+            }
+            else {
+                res.status(404).json({
+                    "message": `User with _id: ${id} not found`
+                });
+                console.log("User Not Deleted!")
+            }
+
+        })
+        .catch((err) => {
+            console.error(err);
+            if(err.name === 'CastError') {
+                res.status(400).json({
+                    "message": `Bad request, ${id} is not a valid _id`
+                });
+            }
+            else {
+                res.status(500).json(err)
+            }
+        });
 };
 
 module.exports = {
     registerUser,
     loginUser,
     readUsers,
-    readOneUser,
-    updateUser,
-    deleteUser,
+    readUsersByRole,
+    readUserByID,
+    readUserByUsername,
+    readUserByEmail,
+    updateUserByID,
+    deleteUserByID,
 };
 
 
