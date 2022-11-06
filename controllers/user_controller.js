@@ -69,8 +69,21 @@ const readUsers = (req, res) => {
     // Default: Ascending
     let direction = req.query.direction ? req.query.direction : 1
 
-    // TODO: Try to apply filter type & filter text like find({filter:text})
-    User.find().sort([[sortBy, direction]]).limit(limit)
+    // Initialising filter variables
+    let searchBy
+    let searchQuery
+
+    // Only if both type and search queries exist at once will they be assigned
+    if(req.query.by && req.query.query){
+        searchBy = req.query.by
+        searchQuery = req.query.query
+    }
+
+    // Find all users, optionally define:
+    // - Property to search by + search query,
+    // - Property to sort by + direction (asc/desc),
+    // - Amount of users to return (limit)
+    User.find({[searchBy]:searchQuery}).sort([[sortBy, direction]]).limit(limit)
         .then((data) => {
             console.log(data);
             if(data.length > 0){
@@ -91,127 +104,6 @@ const readUsers = (req, res) => {
         .catch((err) => {
             console.log(err);
             res.status(500).json(err);
-        });
-};
-
-const readUsersByRole = (req, res) => {
-    let role = req.params.role;
-
-    User.find({role:role})
-        .then((data) => {
-            if(data){
-                res.status(200).json({
-                    "msg": `Users with role: ${role} retrieved`,
-                    "data": data
-                });
-            }
-            else {
-                res.status(404).json({
-                    "message": `No users with role: ${role} found`
-                });
-            }
-        })
-        .catch((err) => {
-            console.error(err);
-            if(err.name === 'CastError') {
-                res.status(400).json({
-                    "message": `Bad request, ${role} is not a valid role`
-                });
-            }
-            else {
-                res.status(500).json(err)
-            }
-        });
-};
-
-const readUserByID = (req, res) => {
-    let id = req.params.id;
-
-    // Connect to the database and retrieve user with :id
-    User.findById(id)
-        .then((data) => {
-            if(data){
-                res.status(200).json({
-                    "msg": `User with _id: ${id} retrieved`,
-                    "data": data
-                });
-            }
-            else {
-                res.status(404).json({
-                    "message": `User with _id: ${id} not found`
-                });
-            }
-        })
-        .catch((err) => {
-            console.error(err);
-            if(err.name === 'CastError') {
-                res.status(400).json({
-                    "message": `Bad request, ${id} is not a valid _id`
-                });
-            }
-            else {
-                res.status(500).json(err)
-            }
-        });
-};
-
-const readUserByUsername = (req, res) => {
-    let username = req.params.username;
-
-    User.findOne({ username : username })
-        .then((data) => {
-            if(data){
-                res.status(200).json({
-                    "msg": `User with username: ${username} retrieved`,
-                    "data": data
-                });
-            }
-            else {
-                res.status(404).json({
-                    "message": `User with username: ${username} not found`
-                });
-            }
-        })
-        .catch((err) => {
-            console.error(err);
-            if(err.name === 'CastError') {
-                res.status(400).json({
-                    "message": `Bad request, ${username} is not a valid username`
-                });
-            }
-            else {
-                res.status(500).json(err)
-            }
-        });
-};
-
-const readUserByEmail = (req, res) => {
-    let email = req.params.email;
-
-    User.findOne({ email : email })
-        .then((data) => {
-            if(data){
-                res.status(200).json({
-                    "msg": `User with email: ${email} retrieved`,
-                    "data": data
-                });
-            }
-            else {
-                res.status(404).json({
-                    "message": `User with email: ${email} not found`
-                });
-            }
-        })
-        .catch((err) => {
-            console.error(err);
-            if(err.name === 'CastError') {
-                res.status(400).json({
-                    "message": `Bad request, ${email} is not a valid email`
-                });
-            }
-            else {
-                res.status(500).json(err)
-            }
         });
 };
 
@@ -300,10 +192,6 @@ module.exports = {
     registerUser,
     loginUser,
     readUsers,
-    readUsersByRole,
-    readUserByID,
-    readUserByUsername,
-    readUserByEmail,
     updateUserByID,
     deleteUserByID,
 };
