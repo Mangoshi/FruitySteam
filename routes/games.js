@@ -8,9 +8,8 @@ const {
     readGameByName,
     createGame,
     updateGameByID,
-    updateGameByAppID,
-    deleteGameByAppID
-  } = require('../controllers/game_controller');
+    deleteGameByID
+} = require('../controllers/game_controller');
 
 const { loginRequired, adminRequired } = require('../controllers/auth_controller')
 
@@ -26,7 +25,6 @@ router
     // Admin
     .post('/', adminRequired, createGame)
     .put('/id/:id', adminRequired, updateGameByID)
-    .put('/app_id/:id', adminRequired, updateGameByAppID)
-    .delete('/app_id/:id', adminRequired, deleteGameByAppID);
+    .delete('/id/:id', adminRequired, deleteGameByID);
 
 module.exports = router;

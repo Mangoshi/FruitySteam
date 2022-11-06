@@ -215,7 +215,6 @@ const readUserByEmail = (req, res) => {
         });
 };
 
-// TODO: FIX
 const updateUserByID = (req, res) => {
     let id = req.params.id;
     let body = req.body;
@@ -223,9 +222,8 @@ const updateUserByID = (req, res) => {
     // use bcrypt to re-hash the password. hashSync(password, salt)
     body.password = bcrypt.hashSync(req.body.password, 10)
 
-    // TODO: Figure out why it doesn't update by ID, but last user in DB
-    User.findOneAndUpdate(id, body, {
-        id: id,
+    User.findByIdAndUpdate(id, body, {
+        _id: id,
         new: true
     })
         .then((data) => {
@@ -264,16 +262,14 @@ const updateUserByID = (req, res) => {
         });
 };
 
-// TODO: FIX
 const deleteUserByID = (req, res) => {
 
     let id = req.params.id;
 
-    // TODO: Figure out why it doesn't delete by ID, but last user in DB
-    User.deleteOne({ id : id })
+    User.findByIdAndDelete({ _id : id })
         .then((data) => {
 
-            if(data.deletedCount){
+            if(data){
                 res.status(200).json({
                     "message": `User with _id: ${id} deleted successfully`
                 });

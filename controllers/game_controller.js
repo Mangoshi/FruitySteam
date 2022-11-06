@@ -176,7 +176,7 @@ const updateGameByID = (req, res) => {
     let id = req.params.id;
     let body = req.body;
 
-    Game.findOneAndUpdate(id, body, {
+    Game.findByIdAndUpdate(id, body, {
         _id: id,
         new: true
     })
@@ -212,61 +212,15 @@ const updateGameByID = (req, res) => {
         });
 };
 
-// Update a game by Steam AppID //
-// TODO: FIX
-const updateGameByAppID = (req, res) => {
+// Delete a game by Steam AppID //
+const deleteGameByID = (req, res) => {
 
     let id = req.params.id;
-    let body = req.body;
 
-    // TODO: Figure out why it doesn't update by ID, but last game in DB
-    Game.findOneAndUpdate(id, body, {
-        AppID: id,
-        new: true
-    })
+    Game.findByIdAndDelete({ _id : id })
         .then((data) => {
 
             if(data){
-                res.status(201).json(data);
-                console.log(data, 'Game Updated!');
-            }
-            else {
-                res.status(404).json({"message": `Game with AppID: ${id} not found`});
-                console.log('Game Not Updated!');
-            }
-            
-        })
-        .catch((err) => {
-            if(err.name === 'ValidationError'){
-                console.error('Validation Error!!', err);
-                res.status(422).json({
-                    "msg": "Validation Error",
-                    "error" : err.message 
-                });
-            }
-            else if(err.name === 'CastError') {
-                res.status(400).json({
-                    "message": `Bad request, ${id} is not a valid AppID`
-                });
-            }
-            else {
-                console.error(err);
-                res.status(500).json(err);
-            }
-        });
-};
-
-// Delete a game by Steam AppID //
-// TODO: FIX
-const deleteGameByAppID = (req, res) => {
-
-    let id = req.params.id;
-
-    // TODO: Figure out why it doesn't delete by ID, but last game in DB
-    Game.deleteOne({ AppID: id })
-        .then((data) => {
-
-            if(data.deletedCount){
                 res.status(200).json({
                     "message": `Game with id: ${id} deleted successfully`
                 });
@@ -300,8 +254,7 @@ module.exports = {
     readGameByName,
     createGame,
     updateGameByID,
-    updateGameByAppID,
-    deleteGameByAppID
+    deleteGameByID
 };
 
 
