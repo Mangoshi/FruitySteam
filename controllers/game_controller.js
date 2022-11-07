@@ -168,7 +168,6 @@ const readGameByName = (req, res) => {
 };
 
 // Create a game //
-// TODO: Implement AppID duplicate check
 const createGame = (req, res) => {
 
     // console.log(req.body);
@@ -185,6 +184,12 @@ const createGame = (req, res) => {
                 res.status(422).json({
                     "msg": "Validation Error",
                     "error" : err.message 
+                });
+            } else if (err.code === 11000) {
+                console.error('DuplicateKey Error!!', err);
+                res.status(400).json({
+                    "msg": `The AppID ${err.keyValue.AppID} already exists! No duplicates allowed.`,
+                    "error" : err.message
                 });
             }
             else {
