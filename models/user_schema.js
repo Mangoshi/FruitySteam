@@ -29,6 +29,9 @@ const userSchema = new Schema({
         default: "basic",
         lowercase: true,
         required: [true, 'Role is required!']
+    },
+    wishlist: {
+        type: [Schema.Types.ObjectId],
     }
 }, {
     // created/updated timestamps will be automatically made

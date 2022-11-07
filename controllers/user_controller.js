@@ -144,7 +144,14 @@ const updateUserByID = (req, res) => {
             }
             else if(err.name === 'CastError') {
                 res.status(400).json({
-                    "message": `Bad request, ${id} is not a valid _id`
+                    "message": `Bad request, either ${id} is not a valid _id, or you tried to update your wishlist with an invalid _id`,
+                    "wishlist": body.wishlist
+                });
+            }
+            else if(err.codeName === 'DuplicateKey') {
+                res.status(400).json({
+                    "message": `The email address ${err.keyValue.email} already exists! No duplicate emails allowed.`,
+                    "error": err
                 });
             }
             else {
