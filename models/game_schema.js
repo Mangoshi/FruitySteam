@@ -128,6 +128,9 @@ const gameSchema = new mongoose.Schema(
     { timestamps: false }
 );
 
+// This is to be extra sure mongoose is aware of the unique fields
+// A mongo shell command was required too: db.games.ensureIndex({AppID: 1}, {unique: true, dropDups: true});
+// Without this command, duplicates were still allowed as Mongo can't enforce it while duplicates remain in the DB
 gameSchema.index({ AppID: 1 }, { unique: true});
 
 module.exports = mongoose.model('Game', gameSchema);

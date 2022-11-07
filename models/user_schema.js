@@ -39,6 +39,9 @@ const userSchema = new Schema({
     timestamps: true
 })
 
+// This is to be extra sure mongoose is aware of the unique fields
+// A mongo shell command was required too: db.users.ensureIndex({username: 1, email: 1}, {unique: true, dropDups: true});
+// Without this command, duplicates were still allowed as Mongo can't enforce it while duplicates remain in the DB
 userSchema.index({ username: 1, email: 1 }, { unique: true});
 
 // Custom methods for userSchema
