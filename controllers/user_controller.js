@@ -79,7 +79,7 @@ const readUsers = (req, res) => {
         searchQuery = req.query.query
     }
 
-    // Find all users, optionally define:
+    // Find all users by default, or optionally define:
     // - Property to search by + search query,
     // - Property to sort by + direction (asc/desc),
     // - Amount of users to return (limit)

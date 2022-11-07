@@ -12,8 +12,32 @@ const readGames = (req, res) => {
     // Default: 1
     let page = req.query.page ? req.query.page : 1
 
+    // Initialising filter variables
+    let searchBy
+    let searchQuery
+
+    // Only if both type and search queries exist at once will they be assigned
+    if(req.query.by && req.query.query){
+        searchBy = req.query.by
+        searchQuery = req.query.query
+    }
+
     // TODO: Figure out how to paginate without reaching memory limit! // .allowDiskUse(true) not working
-    Game.find().sort([[sortBy, direction]]).limit(limit).skip(limit*(page-1))
+
+    // TODO:
+    //  Remove RegEx for number queries, since it fails with them
+    //  Could build the query outside of find(), based on searchBy/searchQuery?
+
+    // Find all games by default, or optionally define:
+    // - Property to search by + search query.
+    // -- Using Regular Expression to look for any matches, not just exact matches.
+    Game.find({[ searchBy ] : { $regex: '.*' + searchQuery + '.*' }})
+        // - Property to sort by + direction (asc/desc),
+        .sort([[sortBy, direction]])
+        // - Amount of games to return (limit)
+        .limit(limit)
+        // - How many "pages" of games to skip
+        .skip(limit*(page-1))
         .then((data) => {
             console.log(data);
             if(data.length > 0){
