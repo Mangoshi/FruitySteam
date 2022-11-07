@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt')
 const userSchema = new Schema({
     username: {
         type: String,
+        unique: true,
         // leading/trailing whitespace will be removed
         trim: true,
         required: [true, 'Username is required!']
@@ -37,6 +38,8 @@ const userSchema = new Schema({
     // created/updated timestamps will be automatically made
     timestamps: true
 })
+
+userSchema.index({ username: 1, email: 1 }, { unique: true});
 
 // Custom methods for userSchema
 userSchema.methods.comparePassword = function(password){

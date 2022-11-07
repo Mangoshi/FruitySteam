@@ -1,12 +1,11 @@
 const mongoose = require('mongoose');
-// const Int32 = require("mongoose-int32")
-// const Double = require('@mongoosejs/double');
 
 const gameSchema = new mongoose.Schema(
     {
         AppID: {
             type: Number,
-            required: [true, 'AppID field is required'],
+            unique: true,
+            required: [true, 'AppID field is required']
         },
         Name: {
             type: String,
@@ -128,5 +127,7 @@ const gameSchema = new mongoose.Schema(
     },
     { timestamps: false }
 );
+
+gameSchema.index({ AppID: 1 }, { unique: true});
 
 module.exports = mongoose.model('Game', gameSchema);
