@@ -7,8 +7,7 @@ const User = require('./models/user_schema')
 
 let selected_database = 'Datasets'
 
-mongoose
-	.connect(`${process.env.DB_ATLAS_URL}/${selected_database}`, {
+mongoose.connect(`${process.env.DB_ATLAS_URL}/${selected_database}`, {
 		useNewUrlParser: true,
 		useUnifiedTopology: true
 	}).then(() => {
@@ -18,24 +17,30 @@ mongoose
 		console.log(err)
 	})
 
-const username = faker.name.firstName()
-const email = faker.internet.email(username)
-const password = faker.internet.password()
-const role = faker.helpers.arrayElement(['basic', 'admin'])
+// console.log("0: ", process.argv[0])
+// console.log("1: ", process.argv[1])
+// console.log("2: ", process.argv[2])
 
-const seedUsers = [
-	{
-		username: username,
-		email: email,
-		password: password,
-		role: role,
+let count = process.argv[2]
+
+let fakedUsers = []
+
+for(let i = 0; i < count; i++) {
+
+	let fakeUser = {
+		username: faker.name.firstName(),
+		email: faker.internet.email(this.username),
+		password: faker.internet.password(),
+		role: faker.helpers.arrayElement(['basic', 'admin']),
 	}
-]
-
-const seedDB = async () => {
-	await User.insertMany(seedUsers)
+	fakedUsers.push(fakeUser)
 }
 
-seedDB().then(()=> {
-	mongoose.connection.close()
-})
+	let seedDB = async () => {
+		await User.insertMany(fakedUsers)
+	}
+
+	seedDB().then(()=> {
+		console.log("Operation successful!")
+		mongoose.connection.close()
+	})
