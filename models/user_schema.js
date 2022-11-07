@@ -2,7 +2,6 @@ const { Schema, model } = require('mongoose')
 const bcrypt = require('bcrypt')
 
 // User Model
-// TODO: Improve userSchema
 const userSchema = new Schema({
     username: {
         type: String,

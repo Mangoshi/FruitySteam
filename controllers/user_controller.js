@@ -2,7 +2,6 @@ const User = require('../models/user_schema')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
-// TODO: Implement error message for duplicate entries
 const registerUser = (req, res) => {
     // assign newUser to a new User Object from user_schema, using the request body
     let newUser = new User(req.body)
@@ -12,9 +11,24 @@ const registerUser = (req, res) => {
     newUser.save((error, user) => {
         // if there is an error, respond with status 400 and send error back
         if(error){
-            return res.status(400).send({
-                message: error
-            })
+            console.log("ERROR", error)
+            if(error.code === 11000) {
+                if(error.keyPattern.email){
+                    return res.status(400).json({
+                        "message": `That email already exists! No duplicates allowed.`,
+                        "error": error
+                    });
+                } else {
+                    return res.status(400).json({
+                        "message": `That username already exists! No duplicates allowed.`,
+                        "error": error
+                    });
+                }
+            }
+            else {
+                console.error(error);
+                return res.status(500).json(error);
+            }
         }
         // else if successful
         else {
