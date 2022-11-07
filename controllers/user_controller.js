@@ -11,19 +11,15 @@ const registerUser = (req, res) => {
     newUser.save((error, user) => {
         // if there is an error, respond with status 400 and send error back
         if(error){
-            console.log("ERROR", error)
+            // Error code 11000 = DuplicateKey in this case
             if(error.code === 11000) {
-                if(error.keyPattern.email){
-                    return res.status(400).json({
-                        "message": `That email already exists! No duplicates allowed.`,
-                        "error": error
-                    });
-                } else {
-                    return res.status(400).json({
-                        "message": `That username already exists! No duplicates allowed.`,
-                        "error": error
-                    });
-                }
+                // If error's keyPattern is email, return email, if not, return username
+                let keyPattern = error.keyPattern.email ? 'email' : 'username'
+                // Return a status 400 with an error message and the error data
+                return res.status(400).json({
+                    "message": `That ${keyPattern} already exists! No duplicates allowed.`,
+                    "error": error
+                });
             }
             else {
                 console.error(error);
