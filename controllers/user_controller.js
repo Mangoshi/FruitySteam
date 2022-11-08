@@ -94,6 +94,9 @@ const readUsers = (req, res) => {
     // - Property to sort by + direction (asc/desc),
     // - Amount of users to return (limit)
     User.find({[searchBy]:searchQuery}).sort([[sortBy, direction]]).limit(limit)
+        // Rather than just returning an array of ObjectIDs,
+        // Populate the response wishlist array with the actual data, from the Game collection
+        .populate("wishlist")
         .then((data) => {
             console.log(data);
             if(data.length > 0){

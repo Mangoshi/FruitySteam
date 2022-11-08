@@ -31,7 +31,8 @@ const userSchema = new Schema({
         required: [true, 'Role is required!']
     },
     wishlist: {
-        type: [Schema.Types.ObjectId],
+        // array of Mongo ObjectIds, referencing Game Objects
+        type: [{type: Schema.Types.ObjectId, ref: 'Game'}],
     }
 }, {
     // created/updated timestamps will be automatically made
