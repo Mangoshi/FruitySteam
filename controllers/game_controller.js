@@ -22,16 +22,29 @@ const readGames = (req, res) => {
         searchQuery = req.query.query
     }
 
+    // Initialising variable to be used in find function
+    let findString
+    // Initialising to return either true or NaN, to check if searchQuery is a number
+    let searchQueryParsed = parseInt(searchQuery)
+    // If it is a number...
+    if(Number.isInteger(searchQueryParsed)){
+        // findString = the number
+        findString = searchQueryParsed
+    // If it isn't a number...
+    } else {
+        // findString = Regular Expression to look for any matches in the string, not just exact matches.
+        // Doing this because tags and categories are comma separated in one big string
+        findString = { $regex: '.*' + searchQuery + '.*' }
+    }
+
+    // console.log("findString: ", findString)
+    // console.log("type: ", typeof findString)
+
     // TODO: Figure out how to paginate without reaching memory limit! // .allowDiskUse(true) not working
 
-    // TODO:
-    //  Remove RegEx for number queries, since it fails with them
-    //  Could build the query outside of find(), based on searchBy/searchQuery?
-
     // Find all games by default, or optionally define:
-    // - Property to search by + search query.
-    // -- Using Regular Expression to look for any matches, not just exact matches.
-    Game.find({[ searchBy ] : { $regex: '.*' + searchQuery + '.*' }})
+    // - Property to search by + search query (findString).
+    Game.find({[ searchBy ] : findString})
         // - Property to sort by + direction (asc/desc),
         .sort([[sortBy, direction]])
         // - Amount of games to return (limit)
@@ -39,7 +52,7 @@ const readGames = (req, res) => {
         // - How many "pages" of games to skip
         .skip(limit*(page-1))
         .then((data) => {
-            console.log(data);
+            // console.log(data);
             if(data.length > 0){
                 res.status(200).json({
                     "msg" : `${limit} games retrieved`,
@@ -57,8 +70,16 @@ const readGames = (req, res) => {
             }
         })
         .catch((err) => {
-            console.log(err);
-            res.status(500).json(err);
+            // console.log(err);
+            if(err.name==="CastError"){
+                res.status(400).json({
+                    "message" : "Cast error occurred, have you used a letter where there should be a number?",
+                    "error": err
+                });
+            } else {
+                console.log(err)
+                res.status(500).json(err);
+            }
         });
 };
 
