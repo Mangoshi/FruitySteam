@@ -1,5 +1,6 @@
 // Import necessary libraries
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 const { faker } = require("@faker-js/faker");
 require('dotenv').config();
 
@@ -44,19 +45,32 @@ let fakedUsers = []
 
 // For loop defined by count (command-line argument)
 for(let i = 0; i < count; i++) {
+	// Generating first name (to base username off)
+	let firstName = faker.name.firstName()
+	// Generating last name (to base username off)
+	let lastName = faker.name.lastName()
+	// Generating username (based on first and last name)
+	let username = faker.internet.userName(firstName, lastName)
+	// Generating email (based on first name, last name, and with provider "fruitbowl.ie")
+	let email = faker.internet.email(firstName, lastName, "fruitbowl.ie")
+	// Generating password
+	let password = faker.internet.password()
+	// Generating role (chooses between basic and admin)
+	let role = faker.helpers.arrayElement(['basic', 'admin'])
 
-	// Initialising fakeUser Object
+	// Initialising fakeUser Object with generated values
 	let fakeUser = {
-		// Generating username
-		username: faker.name.firstName(),
-		// Generating email based on username
-		email: faker.internet.email(this.username),
-		// Generating password // TODO: hash it!
-		password: faker.internet.password(),
-		// Generating role (picks from basic and admin)
-		role: faker.helpers.arrayElement(['basic', 'admin']),
+		username: username,
+		email: email,
+		password: password,
+		role: role
 	}
-	// Push generated user to fakedUsers array
+
+	// Logging to console to check if login works after next step
+	console.log("Password before hashing: ", fakeUser.password)
+	// Hashing password using bcrypt
+	fakeUser.password = bcrypt.hashSync(fakeUser.password, 10)
+	// Push generated user data to fakedUsers array
 	fakedUsers.push(fakeUser)
 }
 
