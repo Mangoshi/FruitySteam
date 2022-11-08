@@ -22,19 +22,23 @@ const readGames = (req, res) => {
         searchQuery = req.query.query
     }
 
-    // Initialising variable to be used in find function
-    let findString
-    // Initialising to return either true or NaN, to check if searchQuery is a number
-    let searchQueryParsed = parseInt(searchQuery)
-    // If it is a number...
-    if(Number.isInteger(searchQueryParsed)){
-        // findString = the number
-        findString = searchQueryParsed
-    // If it isn't a number...
-    } else {
-        // findString = Regular Expression to look for any matches in the string, not just exact matches.
-        // Doing this because tags and categories are comma separated in one big string
-        findString = { $regex: '.*' + searchQuery + '.*' }
+    // Initialising var to be used in find function
+    let findString = searchQuery
+
+    // If the user is not searching by a Mongo ObjectId...
+    if (searchBy !== '_id'){
+        // Initialising var to return either true or NaN, to check if searchQuery is a number
+        let searchQueryParsed = parseInt(searchQuery)
+        // If it is a number...
+        if(Number.isInteger(searchQueryParsed)){
+            // findString = the number
+            findString = searchQueryParsed
+            // If it isn't a number...
+        } else {
+            // findString = Regular Expression to look for any matches in the string, not just exact matches.
+            // Doing this because tags and categories are comma separated in one big string
+            findString = { $regex: '.*' + searchQuery + '.*' }
+        }
     }
 
     // console.log("findString: ", findString)
@@ -73,7 +77,7 @@ const readGames = (req, res) => {
             // console.log(err);
             if(err.name==="CastError"){
                 res.status(400).json({
-                    "message" : "Cast error occurred, have you used a letter where there should be a number?",
+                    "message" : `Cast error occurred, ${searchBy} query needs to be a valid ${err.kind}!`,
                     "error": err
                 });
             } else {
