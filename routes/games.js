@@ -2,10 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const { 
-    readGames, 
-    readGameByID,
-    readGameByAppID,
-    readGameByName,
+    readGames,
     createGame,
     updateGameByID,
     deleteGameByID
@@ -14,13 +11,8 @@ const {
 const { loginRequired, adminRequired } = require('../controllers/auth_controller')
 
 router
-    // Unauthenticated
-    .get('/', readGames)
-
     // Authenticated
-    .get('/id/:id', loginRequired, readGameByID)
-    .get('/app_id/:id', loginRequired, readGameByAppID)
-    .get('/name/:name', loginRequired, readGameByName)
+    .get('/', loginRequired, readGames)
 
     // Admin
     .post('/', adminRequired, createGame)

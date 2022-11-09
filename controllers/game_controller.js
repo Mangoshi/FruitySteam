@@ -44,8 +44,6 @@ const readGames = (req, res) => {
     // console.log("findString: ", findString)
     // console.log("type: ", typeof findString)
 
-    // TODO: Figure out how to paginate without reaching memory limit! // .allowDiskUse(true) not working
-
     // Find all games by default, or optionally define:
     // - Property to search by + search query (findString).
     Game.find({[ searchBy ] : findString})
@@ -83,111 +81,6 @@ const readGames = (req, res) => {
             } else {
                 console.log(err)
                 res.status(500).json(err);
-            }
-        });
-};
-
-// Read one game by MongoDB _id //
-const readGameByID = (req, res) => {
-
-    let id = req.params.id;
-
-    // console.log("req: ",req.params)
-    // console.log("res: ",res)
-
-    // Connect to the database and retrieve game with :id
-    Game.findById(id)
-        .then((data) => {
-
-            if(data){
-                res.status(200).json(data);
-            }
-            else {
-                res.status(404).json({
-                    "message": `Game with _id: ${id} not found`
-                });
-            }
-            
-        })
-        .catch((err) => {
-            console.error(err);
-            if(err.name === 'CastError') {
-                res.status(400).json({
-                    "message": `Bad request, ${id} is not a valid _id`
-                });
-            }
-            else {
-                res.status(500).json(err)
-            }
-        });
-};
-
-// Read one game by Steam AppID //
-const readGameByAppID = (req, res) => {
-
-    let AppID = req.params.id;
-
-    // using findOne instead of findById since we're using Steam App IDs
-
-    Game.findOne({
-        AppID: AppID
-    })
-        .then((data) => {
-
-            if(data){
-                res.status(200).json(data);
-            }
-            else {
-                res.status(404).json({
-                    "message": `Game with AppID: ${AppID} not found`
-                });
-            }
-
-        })
-        .catch((err) => {
-            console.error(err);
-            if(err.name === 'CastError') {
-                res.status(400).json({
-                    "message": `Bad request, ${AppID} is not a valid AppID`
-                });
-            }
-            else {
-                res.status(500).json(err)
-            }
-        });
-};
-
-// Read one game by its name //
-const readGameByName = (req, res) => {
-
-    let name = req.params.name;
-
-    // using findOne instead of findById since we're using game names
-
-    Game.findOne({
-        Name: name
-    })
-        .then((data) => {
-
-            if(data){
-                res.status(200).json(data);
-            }
-            else {
-                res.status(404).json({
-                    "message": `Game with name: ${name} not found`
-                });
-            }
-
-        })
-        .catch((err) => {
-            console.error(err);
-            if(err.name === 'CastError') {
-                res.status(400).json({
-                    "message": `Bad request, ${name} is not a valid name`
-                });
-            }
-            else {
-                res.status(500).json(err)
             }
         });
 };
@@ -303,9 +196,6 @@ const deleteGameByID = (req, res) => {
 
 module.exports = {
     readGames,
-    readGameByID,
-    readGameByAppID,
-    readGameByName,
     createGame,
     updateGameByID,
     deleteGameByID
