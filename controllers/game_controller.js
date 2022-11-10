@@ -2,9 +2,9 @@ const Game = require('../models/game_schema');
 
 // Read all games (with optional limit) //
 const readGames = (req, res) => {
-    // Setting a default limit of 1000 for now as the entire DB is very large (over 63,000 games)
+    // Setting a default limit of 100 as the entire DB is very large (over 63,000 games)
     // If "?limit=x" is used, it will return that amount instead.
-    let limit = req.query.limit ? req.query.limit : 1000
+    let limit = req.query.limit ? req.query.limit : 100
     // Default: AppID
     let sortBy = req.query.sort ? req.query.sort : 'AppID'
     // Default: Ascending
@@ -53,19 +53,21 @@ const readGames = (req, res) => {
         .limit(limit)
         // - How many "pages" of games to skip
         .skip(limit*(page-1))
-        .then((data) => {
-            // console.log(data);
-            if(data.length > 0){
+        .then(async (data) => {
+            console.log(data);
+            if (data.length > 0) {
+                let countQuery = await Game.countDocuments({[searchBy]: findString})
+                // console.log("queryTotal: ", queryTotal())
                 res.status(200).json({
-                    "msg" : `${limit} games retrieved`,
-                    "page" : page,
+                    "msg": `${data.length} game(s) retrieved`,
+                    "total": `${countQuery} game(s) match your query`,
+                    "page": page,
                     "data": data
                 });
-                console.log(`${limit} games retrieved \nPage: ${page} \nSorted by: ${sortBy} \nDirection: ${direction}`);
-            }
-            else{
+                console.log(`${countQuery} game(s) match your query \n${data.length} games per page \nPage: ${page} \nSorted by: ${sortBy} \nDirection: ${direction}`);
+            } else {
                 res.status(404).json({
-                    "msg" : "No games found",
+                    "msg": "No games found",
                     "data": data
                 });
                 console.log("No games found");
