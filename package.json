@@ -4,7 +4,7 @@
   "description": "Fruity Steam API [64,000 Games]",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --detectOpenHandles",
     "serve": "node server.js",
     "dev": "nodemon server.js",
     "faker": "node faker.js"
@@ -21,6 +21,8 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
-    "nodemon": "^2.0.20"
+    "nodemon": "^2.0.20",
+    "jest": "^29.3.1",
+    "supertest": "^6.3.1"
   }
 }

@@ -1,18 +1,18 @@
 const mongoose = require('mongoose');
 
-const connect = async () => {
+const connectDB = () => {
     let db = null;
 
     let selected_database = 'Datasets'
 
     try {
-        await mongoose.connect(`${process.env.DB_ATLAS_URL}/${selected_database}?retryWrites=true&w=majority`, {
+        mongoose.connect(`${process.env.DB_ATLAS_URL}/${selected_database}?retryWrites=true&w=majority`, {
             useNewUrlParser: true,
             useUnifiedTopology: true
         });
 
-        console.log("Successfully connected to your MongoDB database!");
-        console.log(`Currently connected to the ${selected_database} database.`)
+        // console.log("Successfully connected to your MongoDB database!");
+        // console.log(`Currently connected to the ${selected_database} database.`)
         db = mongoose.connection;
     }
     catch(error) {
@@ -26,4 +26,8 @@ const connect = async () => {
     }
 };
 
-module.exports = connect;
+const disconnectDB = async () => {
+    await mongoose.disconnect();
+}
+
+module.exports = {connectDB, disconnectDB};
