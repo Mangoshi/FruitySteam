@@ -54,7 +54,7 @@ const readGames = (req, res) => {
         // - How many "pages" of games to skip
         .skip(limit*(page-1))
         .then(async (data) => {
-            console.log(data);
+            // console.log(data);
             if (data.length > 0) {
                 let countQuery = await Game.countDocuments({[searchBy]: findString})
                 // console.log("queryTotal: ", queryTotal())
