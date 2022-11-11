@@ -209,7 +209,7 @@ describe("Test 4: End-to-end user test", () => {
 				})
 
 		// console.log("T4-4. res body :", res)
-		console.log("T4-4. res msg :", res.error)
+		// console.log("T4-4. res msg :", res.error)
 		expect(res.statusCode).toBe(201)
 		expect(res.body.data.username).toBe("Test User Update")
 	})
@@ -221,7 +221,7 @@ describe("Test 4: End-to-end user test", () => {
 				// setting authorization header with test user's token
 				.set('Authorization', `Bearer ${jestUserToken}`)
 
-		console.log("T4-5 res body: ", res.body)
+		// console.log("T4-5 res body: ", res.body)
 		expect(res.body.data[0].username).toBe("Test User Update")
 		expect(res.statusCode).toBe(200)
 	});
