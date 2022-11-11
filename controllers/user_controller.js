@@ -127,8 +127,11 @@ const updateUserByID = (req, res) => {
     let id = req.params.id;
     let body = req.body;
 
-    // use bcrypt to re-hash the password. hashSync(password, salt)
-    body.password = bcrypt.hashSync(req.body.password, 10)
+    // if the user tries to update their password
+    if(body.password){
+        // use bcrypt to re-hash the password. hashSync(password, salt)
+        body.password = bcrypt.hashSync(req.body.password, 10)
+    }
 
     User.findByIdAndUpdate(id, body, {
         _id: id,
