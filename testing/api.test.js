@@ -8,10 +8,14 @@ const app = require("../app");
 // needed to open/close database before/after tests
 const {connectDB, disconnectDB} = require("../utils/db");
 
+// initialising test user variables
 let jestUser
 let jestUserToken
 
-// before all tests, connect to database & login
+// before all tests:
+// - connect to the database
+// - register a new user for testing
+// - login as test user to get token
 beforeAll(async () => {
 	connectDB()
 	const registerRes = await request(app).post('/api/users/register').send({
@@ -29,7 +33,9 @@ beforeAll(async () => {
 	jestUserToken = loginRes.body.token;
 })
 
-// after all tests, disconnect from database
+// after all tests:
+// - test user deletes itself
+// - disconnect from the database
 afterAll(async () => {
 	const response =
 		await request(app)
@@ -56,6 +62,7 @@ describe("GET request to games root ('/games/')", () => {
 		const res =
 			await request(app)
 				.get('/api/games/')
+				// setting authorization header with test user's token
 				.set('Authorization', `Bearer ${jestUserToken}`)
 
 		expect(res.statusCode).toBe(200)
