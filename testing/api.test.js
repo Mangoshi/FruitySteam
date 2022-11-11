@@ -8,23 +8,42 @@ const app = require("../app");
 // needed to open/close database before/after tests
 const {connectDB, disconnectDB} = require("../utils/db");
 
+let jestUser
 let jestUserToken
-let jestUserID
 
 // before all tests, connect to database & login
 beforeAll(async () => {
 	connectDB()
-	const response = await request(app).post('/api/users/login').send({
+	const registerRes = await request(app).post('/api/users/register').send({
 		username : "Jest",
 		email : "test@test.test",
-		password : "test"
+		password : "test",
+		role: "admin"
 	});
-	jestUserToken = response.body.token;
-	// console.log(jestUserToken)
+	jestUser = registerRes.body.data
+	// console.log("Jest user: ", jestUser)
+	// console.log("Jest user ID: ", jestUser._id)
+	// console.log("Jest user ID type: ", typeof jestUser._id)
+	// console.log("Jest user name: ", jestUser.username)
+	// console.log("Jest user email: ", jestUser.email)
+	const loginRes = await request(app).post('/api/users/login').send({
+		username: jestUser.username,
+		email: jestUser.email,
+		password: "test"
+	});
+	jestUserToken = loginRes.body.token;
+	// console.log("Jest user token: ", jestUserToken)
 })
 
 // after all tests, disconnect from database
-afterAll(disconnectDB)
+afterAll(async () => {
+	const response =
+		await request(app)
+			.delete(`/api/users/id/${jestUser._id}`)
+			.set('Authorization', `Bearer ${jestUserToken}`)
+	// console.log("Delete response: ", response.body)
+	await disconnectDB()
+})
 
 // function jestRegister() {
 // 	describe("POST request to users register ('/users/register')", () => {
@@ -64,9 +83,11 @@ describe("GET request to root ('/')", () => {
 
 describe("GET request to games root ('/games/')", () => {
 	it("Should respond with a status 200 and message", async () => {
-		const res = await request(app)
-			.get('/api/games/')
-			.set('Authorization', `Bearer ${jestUserToken}`)
+		const res =
+			await request(app)
+				.get('/api/games/')
+				.set('Authorization', `Bearer ${jestUserToken}`)
+
 		expect(res.statusCode).toBe(200)
 	});
 });
