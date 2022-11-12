@@ -147,7 +147,7 @@ describe("Test 3: End-to-end game test", () => {
 		expect(res.statusCode).toBe(200)
 	});
 	// DEL test game
-	it("T5-5. DELETE test game", async () => {
+	it("T3-5. DELETE test game", async () => {
 		const res =
 			await request(app)
 				.delete(`/api/games/id/${testGameID}`)
@@ -158,10 +158,31 @@ describe("Test 3: End-to-end game test", () => {
 	})
 })
 
+describe("Test 4: GET requests to user root ('/users')", () => {
+	it("T4-1. No query params", async () => {
+		const res =
+			await request(app)
+				.get('/api/users')
+				// setting authorization header with test user's token
+				.set('Authorization', `Bearer ${jestUserToken}`)
+
+		expect(res.statusCode).toBe(200)
+	});
+	it("T4-2. Query param limit=1", async () => {
+		const res =
+			await request(app)
+				.get('/api/users?limit=1')
+				.set('Authorization', `Bearer ${jestUserToken}`)
+
+		expect(res.statusCode).toBe(200)
+		expect(res.body.data).toHaveLength(1)
+	});
+});
+
 describe("Test 4: End-to-end user test", () => {
 	let testUserID
 	// POST test user to /register
-	it("T4-1. POST test user /register", async () => {
+	it("T5-1. POST test user /register", async () => {
 		const res =
 			await request(app)
 				.post('/api/users/register')
@@ -174,7 +195,7 @@ describe("Test 4: End-to-end user test", () => {
 		expect(res.statusCode).toBe(200)
 	});
 	// POST test user to /login
-	it("T4-2. POST test user /login", async () => {
+	it("T5-2. POST test user /login", async () => {
 		const res =
 			await request(app)
 				.post('/api/users/login')
@@ -187,19 +208,19 @@ describe("Test 4: End-to-end user test", () => {
 		expect(res.statusCode).toBe(200)
 	});
 	// GET test user
-	it("T4-3. GET test user by username", async () => {
+	it("T5-3. GET test user by username", async () => {
 		const res =
 			await request(app)
 				.get('/api/users?by=username&query=Jest User')
 				.set('Authorization', `Bearer ${jestUserToken}`)
 
-		// console.log("2. res body :", res.body)
+		// console.log("T5-3. res body :", res.body)
 		testUserID = res.body.data[0]._id
 		expect(res.body.data[0].username).toBe("Jest User")
 		expect(res.statusCode).toBe(200)
 	});
 	// PUT test user
-	it("T4-4. PUT test user update", async () => {
+	it("T5-4. PUT test user update", async () => {
 		const res =
 			await request(app)
 				.put(`/api/users/id/${testUserID}`)
@@ -208,31 +229,31 @@ describe("Test 4: End-to-end user test", () => {
 					username: "Test User Update",
 				})
 
-		// console.log("T4-4. res body :", res)
-		// console.log("T4-4. res msg :", res.error)
+		// console.log("T5-4. res body :", res)
+		// console.log("T5-4. res msg :", res.error)
 		expect(res.statusCode).toBe(201)
 		expect(res.body.data.username).toBe("Test User Update")
 	})
 	// GET test user with sort
-	it("T4-5. GET test user using AppID sort, direction, and limit", async () => {
+	it("T5-5. GET test user using AppID sort, direction, and limit", async () => {
 		const res =
 			await request(app)
 				.get('/api/users?sort=updatedAt&direction=-1&limit=1')
 				// setting authorization header with test user's token
 				.set('Authorization', `Bearer ${jestUserToken}`)
 
-		// console.log("T4-5 res body: ", res.body)
+		// console.log("T5-5 res body: ", res.body)
 		expect(res.body.data[0].username).toBe("Test User Update")
 		expect(res.statusCode).toBe(200)
 	});
 	// DEL test user
-	it("T4-6. DELETE test user", async () => {
+	it("T5-6. DELETE test user", async () => {
 		const res =
 			await request(app)
 				.delete(`/api/users/id/${testUserID}`)
 				.set('Authorization', `Bearer ${jestUserToken}`)
 
-		// console.log("5 res: ", res.body)
+		// console.log("T5-6 res: ", res.body)
 		expect(res.statusCode).toBe(200)
 	})
 })
