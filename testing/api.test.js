@@ -9,8 +9,8 @@ const app = require("../app");
 const {connectDB, disconnectDB} = require("../utils/db");
 
 // initialising test user variables
-let jestUser
-let jestUserToken
+let jestAdmin
+let jestAdminToken
 
 // before all tests:
 // - connect to the database
@@ -24,13 +24,13 @@ beforeAll(async () => {
 		password : "test",
 		role: "admin"
 	});
-	jestUser = registerRes.body.data
+	jestAdmin = registerRes.body.data
 	const loginRes = await request(app).post('/api/users/login').send({
-		username: jestUser.username,
-		email: jestUser.email,
+		username: jestAdmin.username,
+		email: jestAdmin.email,
 		password: "test"
 	});
-	jestUserToken = loginRes.body.token;
+	jestAdminToken = loginRes.body.token;
 })
 
 // after all tests:
@@ -39,8 +39,8 @@ beforeAll(async () => {
 afterAll(async () => {
 	const response =
 		await request(app)
-			.delete(`/api/users/id/${jestUser._id}`)
-			.set('Authorization', `Bearer ${jestUserToken}`)
+			.delete(`/api/users/id/${jestAdmin._id}`)
+			.set('Authorization', `Bearer ${jestAdminToken}`)
 	await disconnectDB()
 })
 
@@ -63,7 +63,7 @@ describe("Test 2: GET requests to games root ('/games')", () => {
 			await request(app)
 				.get('/api/games')
 				// setting authorization header with test user's token
-				.set('Authorization', `Bearer ${jestUserToken}`)
+				.set('Authorization', `Bearer ${jestAdminToken}`)
 
 		expect(res.statusCode).toBe(200)
 		expect(res.body.data).toHaveLength(100)
@@ -72,7 +72,7 @@ describe("Test 2: GET requests to games root ('/games')", () => {
 		const res =
 			await request(app)
 				.get('/api/games?limit=1')
-				.set('Authorization', `Bearer ${jestUserToken}`)
+				.set('Authorization', `Bearer ${jestAdminToken}`)
 
 		expect(res.statusCode).toBe(200)
 		expect(res.body.data).toHaveLength(1)
@@ -82,7 +82,7 @@ describe("Test 2: GET requests to games root ('/games')", () => {
 			await request(app)
 				.get('/api/games?limit=1000')
 				// setting authorization header with test user's token
-				.set('Authorization', `Bearer ${jestUserToken}`)
+				.set('Authorization', `Bearer ${jestAdminToken}`)
 
 		expect(res.statusCode).toBe(200)
 		expect(res.body.data).toHaveLength(1000)
@@ -96,7 +96,7 @@ describe("Test 3: End-to-end game test", () => {
 		const res =
 			await request(app)
 				.post('/api/games')
-				.set('Authorization', `Bearer ${jestUserToken}`)
+				.set('Authorization', `Bearer ${jestAdminToken}`)
 				.send({
 					"AppID": 1,
 					"Name": "Test Game",
@@ -111,7 +111,7 @@ describe("Test 3: End-to-end game test", () => {
 			await request(app)
 				.get('/api/games?by=AppID&query=1')
 				// setting authorization header with test user's token
-				.set('Authorization', `Bearer ${jestUserToken}`)
+				.set('Authorization', `Bearer ${jestAdminToken}`)
 
 		// console.log("2. res body :", res.body)
 		testGameID = res.body.data[0]._id
@@ -123,7 +123,7 @@ describe("Test 3: End-to-end game test", () => {
 		const res =
 			await request(app)
 				.put(`/api/games/id/${testGameID}`)
-				.set('Authorization', `Bearer ${jestUserToken}`)
+				.set('Authorization', `Bearer ${jestAdminToken}`)
 				.send({
 					"AppID": 1,
 					"Name": "Test Game: Renamed",
@@ -140,7 +140,7 @@ describe("Test 3: End-to-end game test", () => {
 			await request(app)
 				.get('/api/games?sort=AppID&limit=1')
 				// setting authorization header with test user's token
-				.set('Authorization', `Bearer ${jestUserToken}`)
+				.set('Authorization', `Bearer ${jestAdminToken}`)
 
 		// console.log("4 res body: ", res.body)
 		expect(res.body.data[0].Name).toBe("Test Game: Renamed")
@@ -151,7 +151,7 @@ describe("Test 3: End-to-end game test", () => {
 		const res =
 			await request(app)
 				.delete(`/api/games/id/${testGameID}`)
-				.set('Authorization', `Bearer ${jestUserToken}`)
+				.set('Authorization', `Bearer ${jestAdminToken}`)
 
 		// console.log("5 res: ", res.body)
 		expect(res.statusCode).toBe(200)
@@ -164,7 +164,7 @@ describe("Test 4: GET requests to user root ('/users')", () => {
 			await request(app)
 				.get('/api/users')
 				// setting authorization header with test user's token
-				.set('Authorization', `Bearer ${jestUserToken}`)
+				.set('Authorization', `Bearer ${jestAdminToken}`)
 
 		expect(res.statusCode).toBe(200)
 	});
@@ -172,7 +172,7 @@ describe("Test 4: GET requests to user root ('/users')", () => {
 		const res =
 			await request(app)
 				.get('/api/users?limit=1')
-				.set('Authorization', `Bearer ${jestUserToken}`)
+				.set('Authorization', `Bearer ${jestAdminToken}`)
 
 		expect(res.statusCode).toBe(200)
 		expect(res.body.data).toHaveLength(1)
@@ -212,7 +212,7 @@ describe("Test 5: End-to-end user test", () => {
 		const res =
 			await request(app)
 				.get('/api/users?by=username&query=Jest User')
-				.set('Authorization', `Bearer ${jestUserToken}`)
+				.set('Authorization', `Bearer ${jestAdminToken}`)
 
 		// console.log("T5-3. res body :", res.body)
 		testUserID = res.body.data[0]._id
@@ -224,7 +224,7 @@ describe("Test 5: End-to-end user test", () => {
 		const res =
 			await request(app)
 				.put(`/api/users/id/${testUserID}`)
-				.set('Authorization', `Bearer ${jestUserToken}`)
+				.set('Authorization', `Bearer ${jestAdminToken}`)
 				.send({
 					username: "Test User Update",
 				})
@@ -240,7 +240,7 @@ describe("Test 5: End-to-end user test", () => {
 			await request(app)
 				.get('/api/users?sort=updatedAt&direction=-1&limit=1')
 				// setting authorization header with test user's token
-				.set('Authorization', `Bearer ${jestUserToken}`)
+				.set('Authorization', `Bearer ${jestAdminToken}`)
 
 		// console.log("T5-5 res body: ", res.body)
 		expect(res.body.data[0].username).toBe("Test User Update")
@@ -251,7 +251,7 @@ describe("Test 5: End-to-end user test", () => {
 		const res =
 			await request(app)
 				.delete(`/api/users/id/${testUserID}`)
-				.set('Authorization', `Bearer ${jestUserToken}`)
+				.set('Authorization', `Bearer ${jestAdminToken}`)
 
 		// console.log("T5-6 res: ", res.body)
 		expect(res.statusCode).toBe(200)
