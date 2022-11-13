@@ -179,7 +179,7 @@ describe("Test 4: GET requests to user root ('/users')", () => {
 	});
 });
 
-describe("Test 4: End-to-end user test", () => {
+describe("Test 5: End-to-end user test", () => {
 	let testUserID
 	// POST test user to /register
 	it("T5-1. POST test user /register", async () => {
