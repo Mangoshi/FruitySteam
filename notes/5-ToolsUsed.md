@@ -5,7 +5,7 @@
 
 ### [JSON-to-Mongoose Tool](https://transform.tools/json-to-mongoose)
 
-Due to each game from the Steam dataset was massive, containing 39 fields, I resorted to using an online tool to generate the schema for me, based off a sample of the dataset in JSON format. This didn't give me the perfect format by any means, but it provided a good starting point. By using find & replace I was able to fix it fairly quickly and start defining rules such as required and unique.
+Due to the fact that each game from the Steam dataset was massive, containing up to 39 fields, I resorted to using an online tool to generate the schema for me, based off a sample of the dataset in JSON format. This didn't give me the perfect format by any means, but it provided a good starting point. By using find & replace I was able to fix it fairly quickly and start defining rules such as required and unique.
 
 <hr>
 

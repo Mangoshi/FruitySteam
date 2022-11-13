@@ -9,11 +9,6 @@
 
 <hr>
 
-## Example of E2E game test
-- Create Game -> Read Game -> Update Game -> Read Game -> Delete Game
-
-<hr>
-
 ## Jest script rundown
 ### Script import requirements:
 - Requires supertest library (for running HTTP requests)
