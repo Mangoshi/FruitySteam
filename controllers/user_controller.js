@@ -2,14 +2,15 @@ const User = require('../models/user_schema')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
+// Register a user //
 const registerUser = (req, res) => {
-    // assign newUser to a new User Object from user_schema, using the request body
+    // Assign newUser to a new User Object from user_schema, using the request body
     let newUser = new User(req.body)
-    // use bcrypt to hash the password. hashSync(password, salt)
+    // Use bcrypt to hash the password. hashSync(password, salt)
     newUser.password = bcrypt.hashSync(req.body.password, 10)
-    // save the new user to the DB
+    // Save the new user to the DB
     newUser.save((error, user) => {
-        // if there is an error, respond with status 400 and send error back
+        // If there is an error, respond with status 400 and send error back
         if(error){
             // Error code 11000 = DuplicateKey in this case
             if(error.code === 11000) {
@@ -26,11 +27,11 @@ const registerUser = (req, res) => {
                 return res.status(500).json(error);
             }
         }
-        // else if successful
+        // Else if successful
         else {
             // remove hashed password before responding to the client
             user.password = undefined
-            // return the new user to the client
+            // Return the new user to the client
             return res.json({
                 msg: `Successfully registered ${user.username}!`,
                 data: user
@@ -39,6 +40,7 @@ const registerUser = (req, res) => {
     })
 }
 
+// Login a user //
 const loginUser = (req, res) => {
     // Connect to DB, and find the user that has...
     User.findOne({
@@ -46,7 +48,7 @@ const loginUser = (req, res) => {
         email: req.body.email,
     }) // Then...
         .then(user => {
-            // ... if user is invalid, OR if comparePassword from user_schema fails
+            // ...if user is invalid, OR if comparePassword from user_schema fails
             if(!user || !user.comparePassword(req.body.password)){
                 // Respond with a status 401: Unauthorised & an error message
                 return res.status(401).json({
@@ -74,6 +76,7 @@ const loginUser = (req, res) => {
         })
 }
 
+// Read all users (with optional filters) //
 const readUsers = (req, res) => {
 
     let limit = req.query.limit
@@ -123,13 +126,14 @@ const readUsers = (req, res) => {
         });
 };
 
+// Update a user by MongoDB _id //
 const updateUserByID = (req, res) => {
     let id = req.params.id;
     let body = req.body;
 
-    // if the user tries to update their password
+    // If the user tries to update their password
     if(body.password){
-        // use bcrypt to re-hash the password. hashSync(password, salt)
+        // Use bcrypt to re-hash the password. hashSync(password, salt)
         body.password = bcrypt.hashSync(req.body.password, 10)
     }
 
@@ -180,6 +184,7 @@ const updateUserByID = (req, res) => {
         });
 };
 
+// Delete a user by MongoDB _id //
 const deleteUserByID = (req, res) => {
 
     let id = req.params.id;
@@ -214,6 +219,7 @@ const deleteUserByID = (req, res) => {
         });
 };
 
+// Export user controller functions
 module.exports = {
     registerUser,
     loginUser,

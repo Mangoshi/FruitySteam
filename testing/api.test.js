@@ -4,15 +4,15 @@ const request = require("supertest");
 // App.js required to run the Express app
 const app = require("../app");
 
-// connect and disconnect functions from db.js
-// needed to open/close database before/after tests
+// Connect and disconnect functions from db.js
+// Needed to open/close database before/after tests
 const {connectDB, disconnectDB} = require("../utils/db");
 
-// initialising test user variables
+// Initialising test user variables
 let jestAdmin
 let jestAdminToken
 
-// before all tests:
+// Before all tests:
 // - connect to the database
 // - register a new user for testing
 // - login as test user to get token
@@ -33,7 +33,7 @@ beforeAll(async () => {
 	jestAdminToken = loginRes.body.token;
 })
 
-// after all tests:
+// After all tests:
 // - test user deletes itself
 // - disconnect from the database
 afterAll(async () => {
@@ -44,15 +44,15 @@ afterAll(async () => {
 	await disconnectDB()
 })
 
-// description of the test group
+// Description of the test group
 describe("Test 1: GET request to root ('/')", () => {
-	// description of the expected test result
+	// Description of the expected test result
 	it("T1-1. No query params", async () => {
-		// initialising response variable as result of get request to '/'
+		// Initialising response variable as result of get request to '/'
 		const res = await request(app).get('/')
-		// setting first expected result of test (status code 200)
+		// Setting first expected result of test (status code 200)
 		expect(res.statusCode).toBe(200)
-		// setting second expected result of test (correct welcome message)
+		// Setting second expected result of test (correct welcome message)
 		expect(res.body).toBe('Welcome to Fruity Steam API!')
 	});
 });
@@ -62,7 +62,7 @@ describe("Test 2: GET requests to games root ('/games')", () => {
 		const res =
 			await request(app)
 				.get('/api/games')
-				// setting authorization header with test user's token
+				// Setting authorization header with test user's token
 				.set('Authorization', `Bearer ${jestAdminToken}`)
 
 		expect(res.statusCode).toBe(200)
@@ -81,7 +81,6 @@ describe("Test 2: GET requests to games root ('/games')", () => {
 		const res =
 			await request(app)
 				.get('/api/games?limit=1000')
-				// setting authorization header with test user's token
 				.set('Authorization', `Bearer ${jestAdminToken}`)
 
 		expect(res.statusCode).toBe(200)
@@ -110,7 +109,6 @@ describe("Test 3: End-to-end game test", () => {
 		const res =
 			await request(app)
 				.get('/api/games?by=AppID&query=1')
-				// setting authorization header with test user's token
 				.set('Authorization', `Bearer ${jestAdminToken}`)
 
 		// console.log("2. res body :", res.body)
@@ -139,7 +137,6 @@ describe("Test 3: End-to-end game test", () => {
 		const res =
 			await request(app)
 				.get('/api/games?sort=AppID&limit=1')
-				// setting authorization header with test user's token
 				.set('Authorization', `Bearer ${jestAdminToken}`)
 
 		// console.log("4 res body: ", res.body)
@@ -163,7 +160,6 @@ describe("Test 4: GET requests to user root ('/users')", () => {
 		const res =
 			await request(app)
 				.get('/api/users')
-				// setting authorization header with test user's token
 				.set('Authorization', `Bearer ${jestAdminToken}`)
 
 		expect(res.statusCode).toBe(200)
@@ -239,7 +235,6 @@ describe("Test 5: End-to-end user test", () => {
 		const res =
 			await request(app)
 				.get('/api/users?sort=updatedAt&direction=-1&limit=1')
-				// setting authorization header with test user's token
 				.set('Authorization', `Bearer ${jestAdminToken}`)
 
 		// console.log("T5-5 res body: ", res.body)

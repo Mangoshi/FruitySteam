@@ -1,20 +1,20 @@
 const { Schema, model } = require('mongoose')
 const bcrypt = require('bcrypt')
 
-// User Model
+// Defining user schema
 const userSchema = new Schema({
     username: {
         type: String,
         unique: true,
-        // leading/trailing whitespace will be removed
+        // Leading/trailing whitespace will be removed
         trim: true,
         required: [true, 'Username is required!']
     },
     email: {
         type: String,
-        // email has to be unique
+        // Email has to be unique
         unique: true,
-        // email will be stored in lowercase
+        // Email will be stored in lowercase
         lowercase: true,
         trim: true,
         required: [true, 'Email is required!']
@@ -25,17 +25,17 @@ const userSchema = new Schema({
     },
     role: {
         type: String,
-        // default role is basic (not admin)
+        // Default role is basic (not admin)
         default: "basic",
         lowercase: true,
         required: [true, 'Role is required!']
     },
     wishlist: {
-        // array of Mongo ObjectIds, referencing Game Objects
+        // Array of Mongo ObjectIds, referencing Game Objects
         type: [{type: Schema.Types.ObjectId, ref: 'Game'}],
     }
 }, {
-    // created/updated timestamps will be automatically made
+    // Created/updated timestamps will be automatically made
     timestamps: true
 })
 
@@ -52,4 +52,5 @@ userSchema.methods.comparePassword = function(password){
     })
 }
 
+// Export user schema
 module.exports = model('User', userSchema)

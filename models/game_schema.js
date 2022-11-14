@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// Defining game schema based off imported Steam dataset
 const gameSchema = new mongoose.Schema(
     {
         AppID: {
@@ -13,7 +14,6 @@ const gameSchema = new mongoose.Schema(
         },
         "Release date": {
             type: Date,
-            // required: [true, 'Date field is required'],
         },
         "Estimated owners": {
             type: String
@@ -133,4 +133,5 @@ const gameSchema = new mongoose.Schema(
 // Without this command, duplicates were still allowed as Mongo can't enforce it while duplicates remain in the DB
 gameSchema.index({ AppID: 1 }, { unique: true});
 
+// Export game schema
 module.exports = mongoose.model('Game', gameSchema);
