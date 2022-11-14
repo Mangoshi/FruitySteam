@@ -252,3 +252,61 @@ describe("Test 5: End-to-end user test", () => {
 		expect(res.statusCode).toBe(200)
 	})
 })
+
+describe("Test 6: Unauthenticated GET test", () => {
+	it("T6-1. GET games root 401", async () => {
+		const res = await request(app).get('/api/games')
+		expect(res.statusCode).toBe(401)
+	});
+	it("T6-2. GET users root 401", async () => {
+		const res = await request(app).get('/api/users')
+		expect(res.statusCode).toBe(401)
+	});
+})
+
+describe("Test 7: Unauthenticated E2E game test", () => {
+	let testGameID
+	// POST test game
+	it("T7-1. POST test game 401", async () => {
+		const res =
+			await request(app)
+				.post('/api/games')
+				.send({
+					"AppID": 1,
+					"Name": "Test Game",
+					"Price": "99.99"
+				})
+		expect(res.statusCode).toBe(401)
+	});
+	// GET test game
+	it("T7-2. GET test game by AppID 401", async () => {
+		const res = await request(app).get('/api/games?by=AppID&query=1')
+		if(res.body.data){
+			testGameID = res.body.data[0]._id
+		}
+		expect(res.statusCode).toBe(401)
+	});
+	// PUT test game
+	it("T7-3. PUT test game update 401", async () => {
+		const res =
+			await request(app)
+				.put(`/api/games/id/${testGameID}`)
+				.send({
+					"AppID": 1,
+					"Name": "Test Game: Renamed",
+					"Price": 999.99
+				})
+		expect(res.statusCode).toBe(401)
+	})
+	// GET test game with sort
+	it("T7-4. GET test game using AppID sort and limit 401", async () => {
+		const res = await request(app).get('/api/games?sort=AppID&limit=1')
+		expect(res.statusCode).toBe(401)
+	});
+	// DEL test game
+	it("T7-5. DELETE test game 401", async () => {
+		const res =
+			await request(app).delete(`/api/games/id/${testGameID}`)
+		expect(res.statusCode).toBe(401)
+	})
+})

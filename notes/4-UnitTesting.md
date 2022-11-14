@@ -78,6 +78,12 @@
 6. DELETE test user
     - Expects a status code of 200: OK
 
+### Test 6 & 7: Unauthenticated requests
+- Test 6: Unauthenticated GET requests to users/games root
+   - Every test expects status code 401: Unauthorized
+- Test 7: Unauthenticated End-to-end game test
+  - Every test expects status code 401: Unauthorized
+
 ### After all tests...
 1. Delete jest admin from database
 2. Disconnect from MongoDB
