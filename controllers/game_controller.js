@@ -1,113 +1,123 @@
 const Game = require('../models/game_schema');
 
 // Read all games (with optional filters) //
-const readGames = (req, res) => {
-    // Setting a default limit of 100 as the entire DB is very large (over 63,000 games)
-    // If "?limit=x" is used, it will return that amount instead.
-    let limit = req.query.limit ? req.query.limit : 100
-    // Default: AppID
-    let sortBy = req.query.sort ? req.query.sort : 'AppID'
-    // Default: Ascending
-    let direction = req.query.direction ? req.query.direction : 1
-    // Default: 1
-    let page = req.query.page ? req.query.page : 1
+const readGames = (auth) => {
+    return (req, res) => {
+        // Setting a default limit of 100 as the entire DB is very large (over 63,000 games)
+        // If "?limit=x" is used, it will return that amount instead.
+        let limit = req.query.limit ? req.query.limit : 100
+        // Default: AppID
+        let sortBy = req.query.sort ? req.query.sort : 'AppID'
+        // Default: Ascending
+        let direction = req.query.direction ? req.query.direction : 1
+        // Default: 1
+        let page = req.query.page ? req.query.page : 1
 
-    // Initialize filter variables
-    let searchBy
-    let searchQuery
+        // If user is connecting from games/names (unauthorized):
+        // Initialize select as "Name", limiting them to game names
+        // Else, initialize as undefined, not limiting them at all
+        let select = auth ? undefined : "Name"
 
-    // Only if both type and search queries exist at once will they be assigned
-    if(req.query.by && req.query.query){
-        searchBy = req.query.by
-        searchQuery = req.query.query
-    }
+        // Initialize filter variables
+        let searchBy
+        let searchQuery
 
-    // Initialize var to be used in find function
-    let findString = searchQuery
-
-    // If the user is not searching by a Mongo ObjectId...
-    if (searchBy !== '_id'){
-        // Initialize var to return either true or NaN,
-        // to check if searchQuery is a number.
-        let searchQueryParsed = parseInt(searchQuery)
-        // If it is a number...
-        if(Number.isInteger(searchQueryParsed)){
-            // findString = the number
-            findString = searchQueryParsed
-        // If it isn't a number...
-        } else {
-            // findString = Regular Expression to look for any matches in the string, not just exact matches.
-            // Doing this because tags and categories are comma separated in one big string
-            findString = { $regex: '.*' + searchQuery + '.*' }
+        // Only if both type and search queries exist at once will they be assigned
+        if (req.query.by && req.query.query) {
+            searchBy = req.query.by
+            searchQuery = req.query.query
         }
+
+        // Initialize var to be used in find function
+        let findString = searchQuery
+
+        // If the user is not searching by a Mongo ObjectId...
+        if (searchBy !== '_id') {
+            // Initialize var to return either true or NaN,
+            // to check if searchQuery is a number.
+            let searchQueryParsed = parseInt(searchQuery)
+            // If it is a number...
+            if (Number.isInteger(searchQueryParsed)) {
+                // findString = the number
+                findString = searchQueryParsed
+                // If it isn't a number...
+            } else {
+                // findString = Regular Expression to look for any matches in the string, not just exact matches.
+                // Doing this because tags and categories are comma separated in one big string
+                findString = {$regex: '.*' + searchQuery + '.*'}
+            }
+        }
+
+        // console.log("findString: ", findString)
+        // console.log("type: ", typeof findString)
+
+        // Find all games by default, or optionally define:
+        // - Property to search by + search query (findString).
+        Game.find({[searchBy]: findString})
+            // - Property to sort by + direction (asc/desc),
+            .sort([[sortBy, direction]])
+            // - Amount of games to return (limit)
+            .limit(limit)
+            // - How many "pages" of games to skip
+            .skip(limit * (page - 1))
+            // - What property/properties to show in response
+            // - Using this to only allow unauthorized users to view game names
+            .select(select)
+            // Then, if success
+            .then(async (data) => {
+                // console.log(data);
+                // If data array is not empty
+                if (data.length > 0) {
+                    // Use mongoose countDocuments function to count docs matching search query
+                    let countQuery = await Game.countDocuments({[searchBy]: findString})
+                    // console.log("queryTotal: ", queryTotal())
+                    // Respond with status 200: OK & JSON:
+                    // - msg = amount of games in data array
+                    // - total = amount of games matching query
+                    // - page = selected page
+                    // - data = the data array from the response
+                    res.status(200).json({
+                        "msg": `${data.length} game(s) retrieved`,
+                        "total": `${countQuery} game(s) match your query`,
+                        "page": page,
+                        "data": data
+                    });
+                    // Log the above data to console with line breaks for readability
+                    console.log(`${countQuery} game(s) match your query \n${data.length} games per page \nPage: ${page} \nSorted by: ${sortBy} \nDirection: ${direction}`);
+                    // Else if data array is empty
+                } else {
+                    // Respond with status 404: Not Found & JSON:
+                    // - msg = error message
+                    // - data = error data
+                    res.status(404).json({
+                        "msg": "No games found",
+                        "data": data
+                    });
+                    // Log to console
+                    console.log("No games found");
+                }
+            })
+            // If error, catch error
+            .catch((err) => {
+                // console.log(err);
+                // If error name is CastError
+                if (err.name === "CastError") {
+                    // Respond with status 400: Bad Request & JSON:
+                    // - message = error message
+                    // - error = error data
+                    res.status(400).json({
+                        "message": `Cast error occurred, ${searchBy} query needs to be a valid ${err.kind}!`,
+                        "error": err
+                    });
+                    // If any other error
+                } else {
+                    // Log to console
+                    console.log(err)
+                    // Respond with status 500: Internal Server Error & error data
+                    res.status(500).json(err);
+                }
+            });
     }
-
-    // console.log("findString: ", findString)
-    // console.log("type: ", typeof findString)
-
-    // Find all games by default, or optionally define:
-    // - Property to search by + search query (findString).
-    Game.find({[ searchBy ] : findString})
-        // - Property to sort by + direction (asc/desc),
-        .sort([[sortBy, direction]])
-        // - Amount of games to return (limit)
-        .limit(limit)
-        // - How many "pages" of games to skip
-        .skip(limit*(page-1))
-        // Then, if success
-        .then(async (data) => {
-            // console.log(data);
-            // If data array is not empty
-            if (data.length > 0) {
-                // Use mongoose countDocuments function to count docs matching search query
-                let countQuery = await Game.countDocuments({[searchBy]: findString})
-                // console.log("queryTotal: ", queryTotal())
-                // Respond with status 200: OK & JSON:
-                // - msg = amount of games in data array
-                // - total = amount of games matching query
-                // - page = selected page
-                // - data = the data array from the response
-                res.status(200).json({
-                    "msg": `${data.length} game(s) retrieved`,
-                    "total": `${countQuery} game(s) match your query`,
-                    "page": page,
-                    "data": data
-                });
-                // Log the above data to console with line breaks for readability
-                console.log(`${countQuery} game(s) match your query \n${data.length} games per page \nPage: ${page} \nSorted by: ${sortBy} \nDirection: ${direction}`);
-            // Else if data array is empty
-            } else {
-                // Respond with status 404: Not Found & JSON:
-                // - msg = error message
-                // - data = error data
-                res.status(404).json({
-                    "msg": "No games found",
-                    "data": data
-                });
-                // Log to console
-                console.log("No games found");
-            }
-        })
-        // If error, catch error
-        .catch((err) => {
-            // console.log(err);
-            // If error name is CastError
-            if(err.name==="CastError"){
-                // Respond with status 400: Bad Request & JSON:
-                // - message = error message
-                // - error = error data
-                res.status(400).json({
-                    "message" : `Cast error occurred, ${searchBy} query needs to be a valid ${err.kind}!`,
-                    "error": err
-                });
-            // If any other error
-            } else {
-                // Log to console
-                console.log(err)
-                // Respond with status 500: Internal Server Error & error data
-                res.status(500).json(err);
-            }
-        });
 };
 
 // Create a game //

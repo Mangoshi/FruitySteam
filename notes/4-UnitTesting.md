@@ -78,10 +78,20 @@
 6. DELETE test user
     - Expects a status code of 200: OK
 
-### Test 6 & 7: Unauthenticated requests
-- Test 6: Unauthenticated GET requests to users/games root
-   - Every test expects status code 401: Unauthorized
-- Test 7: Unauthenticated End-to-end game test
+### Test 6: Unauthenticated GET test
+1. Unauthenticated GET request to games root
+   - Expects a status code of 401: Unauthorized
+   - Expects response.body.message to equal:
+     - ```Unauthorized user! Go to games/names if you really don't want to make an account!```
+2. Unauthenticated GET request to users root
+   - Expects a status code of 401: Unauthorized
+3. Unauthenticated GET request to games/names
+   - Expects a status code of 200: OK
+   - Expects first game in data array to have Name property defined
+   - Expects first game in data array to have AppID property undefined
+   - Expects first game in data array to have Price property undefined
+
+### Test 7: Unauthenticated E2E game test
   - Every test expects status code 401: Unauthorized
 
 ### After all tests...

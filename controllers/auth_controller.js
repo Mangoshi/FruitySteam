@@ -8,11 +8,24 @@ const loginRequired = (req, res, next) => {
 	}
 	// Else if the user doesn't exist
 	else{
-		// Respond with a status 401: Unauthorized...
-		return res.status(401).json({
-			// ...and return this message
-			message: 'Unauthorized user!'
-		})
+		console.log(req)
+		// If a GET request was made from '/'
+		// Then it has to have come from games
+		// (since user GET req to '/' would enter adminRequired function)
+		if(req.route.path === '/' && req.route.methods.get){
+			// console.log("GET REQUEST TO GAMES ROOT")
+			// Respond with a status 401: Unauthorized...
+			return res.status(401).json({
+				// ...and return this message
+				message: "Unauthorized user! Go to games/names if you really don't want to make an account!"
+			})
+		} else {
+			// Respond with a status 401: Unauthorized...
+			return res.status(401).json({
+				// ...and return this message
+				message: 'Unauthorized user!'
+			})
+		}
 	}
 }
 

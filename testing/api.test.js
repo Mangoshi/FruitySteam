@@ -257,10 +257,18 @@ describe("Test 6: Unauthenticated GET test", () => {
 	it("T6-1. GET games root 401", async () => {
 		const res = await request(app).get('/api/games')
 		expect(res.statusCode).toBe(401)
+		expect(res.body.message).toBe("Unauthorized user! Go to games/names if you really don't want to make an account!")
 	});
 	it("T6-2. GET users root 401", async () => {
 		const res = await request(app).get('/api/users')
 		expect(res.statusCode).toBe(401)
+	});
+	it("T6-3. GET games/names 200", async () => {
+		const res = await request(app).get('/api/games/names')
+		expect(res.statusCode).toBe(200)
+		expect(res.body.data[0].Name).toBeDefined()
+		expect(res.body.data[0].AppID).toBeUndefined()
+		expect(res.body.data[0].Price).toBeUndefined()
 	});
 })
 

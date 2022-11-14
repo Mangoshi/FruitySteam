@@ -16,8 +16,11 @@ const { loginRequired, adminRequired } = require('../controllers/auth_controller
 
 // Define routing
 router
+    // Unauthenticated routes
+    .get('/names', readGames(false))
+
     // Authenticated routes
-    .get('/', loginRequired, readGames)
+    .get('/', loginRequired, readGames(true))
 
     // Admin routes
     .post('/', adminRequired, createGame)
