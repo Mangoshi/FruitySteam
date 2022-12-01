@@ -29,6 +29,25 @@ const loginRequired = (req, res, next) => {
 	}
 }
 
+const userRequired = (req, res, next ) => {
+	// If user is an admin, move on
+	if(req.user.role === 'admin'){
+		next()
+	}
+	// Else if user's id matches the requested id, move on
+	else if (req.user._id === req.params.id) {
+		next();
+	}
+	// Else if neither of the above,
+	else {
+		// Respond with a status 401: Unauthorized...
+		return res.status(401).json({
+			// ...and return this message
+			message: 'Unauthorized user!'
+		})
+	}
+}
+
 const adminRequired = (req, res, next) => {
 	// If the user is an admin, move on
 	if(req.user && req.user.role === 'admin'){
@@ -47,5 +66,6 @@ const adminRequired = (req, res, next) => {
 
 module.exports = {
 	loginRequired,
-	adminRequired
+	adminRequired,
+	userRequired
 };

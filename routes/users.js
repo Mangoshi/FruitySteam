@@ -8,18 +8,22 @@ const {
     registerUser,
     loginUser,
     readUsers,
+    readUser,
     updateUserByID,
     deleteUserByID,
 } = require('../controllers/user_controller');
 
 // Import adminRequired from authentication controller
-const { adminRequired } = require('../controllers/auth_controller')
+const { adminRequired, userRequired} = require('../controllers/auth_controller')
 
 // Define routing
 router
     // Unauthenticated routes
     .post('/register', registerUser)
     .post('/login', loginUser)
+
+    // Authenticated routes
+    .get('/id/:id', userRequired, readUser)
 
     // Admin routes
     .get('/', adminRequired, readUsers)

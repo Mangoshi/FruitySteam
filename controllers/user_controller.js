@@ -104,6 +104,7 @@ const readUsers = (req, res) => {
         // Populate the response wishlist array with the actual data, from the Game collection
         .populate("wishlist")
         .then((data) => {
+            data[0].password = undefined
             console.log(data);
             if(data.length > 0){
                 res.status(200).json({
@@ -118,6 +119,40 @@ const readUsers = (req, res) => {
                     "data": data
                 });
                 console.log("No users found");
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).json(err);
+        });
+};
+
+// Read one user by _id //
+const readUser = (req, res) => {
+
+    let id = req.params.id
+    console.log(id)
+
+    User.find({'_id':id})
+        // Rather than just returning an array of ObjectIDs,
+        // Populate the response wishlist array with the actual data, from the Game collection
+        .populate("wishlist")
+        .then((data) => {
+            data[0].password = undefined
+            console.log(data);
+            if(data.length > 0){
+                res.status(200).json({
+                    "msg" : `User ${id} retrieved`,
+                    "data": data
+                });
+                console.log(`User ${id} retrieved`);
+            }
+            else{
+                res.status(404).json({
+                    "msg" : "No user found (you may not be authorized)",
+                    "data": data
+                });
+                console.log("No user found");
             }
         })
         .catch((err) => {
@@ -224,6 +259,7 @@ module.exports = {
     registerUser,
     loginUser,
     readUsers,
+    readUser,
     updateUserByID,
     deleteUserByID,
 };
