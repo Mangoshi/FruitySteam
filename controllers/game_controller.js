@@ -44,7 +44,7 @@ const readGames = (auth) => {
             } else {
                 // findString = Regular Expression to look for any matches in the string, not just exact matches.
                 // Doing this because tags and categories are comma separated in one big string
-                findString = {$regex: '.*' + searchQuery + '.*'}
+                findString = {$regex: '.*' + searchQuery + '.*', $options: 'i'}
             }
         }
 
@@ -147,7 +147,7 @@ const createGame = (req, res) => {
                 // - error = full error message
                 res.status(422).json({
                     "msg": "Validation Error",
-                    "error" : err.message 
+                    "error" : err.message
                 });
             // Else if error code is 11000 (Duplicate key error)
             } else if (err.code === 11000) {
@@ -261,7 +261,7 @@ const deleteGameByID = (req, res) => {
                 // Log to console
                 console.log("Game Not Deleted!")
             }
-            
+
         })
         // If error, catch error
         .catch((err) => {
@@ -278,7 +278,7 @@ const deleteGameByID = (req, res) => {
             else {
                 // Respond with status 500: Internal Server Error & the error
                 res.status(500).json(err)
-            } 
+            }
         });
 };
 
