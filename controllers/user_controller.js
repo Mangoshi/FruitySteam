@@ -67,7 +67,8 @@ const loginUser = (req, res) => {
                 }, 'steamedFruit', {
                     // Setting token expiry to 30 days
                     expiresIn: '30d'
-                })
+                }),
+                role: user.role
             })
         })
         // If an error occurs, catch & throw the error
