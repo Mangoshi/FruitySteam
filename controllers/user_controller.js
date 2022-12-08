@@ -99,7 +99,21 @@ const readUsers = (req, res) => {
         searchQuery = req.query.query
     }
 
-    searchQuery = {$regex: '.*' + searchQuery + '.*', $options: 'i'}
+    if (searchBy !== '_id') {
+        // Initialize var to return either true or NaN,
+        // to check if searchQuery is a number.
+        let searchQueryParsed = parseInt(searchQuery)
+        // If it is a number...
+        if (Number.isInteger(searchQueryParsed)) {
+            // findString = the number
+            findString = searchQueryParsed
+            // If it isn't a number...
+        } else {
+            // findString = Regular Expression to look for any matches in the string, not just exact matches.
+            // Doing this because tags and categories are comma separated in one big string
+            searchQuery = {$regex: '.*' + searchQuery + '.*', $options: 'i'}
+        }
+    }
 
     // Find all users by default, or optionally define:
     // - Property to search by + search query,
