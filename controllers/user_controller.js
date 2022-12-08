@@ -82,10 +82,10 @@ const loginUser = (req, res) => {
 const readUsers = (req, res) => {
 
     let limit = req.query.limit
-    // Default: username
-    let sortBy = req.query.sort ? req.query.sort : 'username'
-    // Default: Ascending
-    let direction = req.query.direction ? req.query.direction : 1
+    // Default: createdAt
+    let sortBy = req.query.sort ? req.query.sort : 'createdAt'
+    // Default: Descending
+    let direction = req.query.direction ? req.query.direction : -1
     // Default: 1
     let page = req.query.page ? req.query.page : 1
 
