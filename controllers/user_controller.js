@@ -1,6 +1,7 @@
 const User = require('../models/user_schema')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const Game = require("../models/game_schema");
 
 // Register a user //
 const registerUser = (req, res) => {
@@ -104,19 +105,20 @@ const readUsers = (req, res) => {
         // Rather than just returning an array of ObjectIDs,
         // Populate the response wishlist array with the actual data, from the Game collection
         .populate("wishlist")
-        .then((data) => {
+        .then(async (data) => {
             data[0].password = undefined
             console.log(data);
-            if(data.length > 0){
+            if (data.length > 0) {
+                let countQuery = await User.countDocuments({[searchBy]: searchQuery})
                 res.status(200).json({
-                    "msg" : limit ? `First ${limit} users retrieved` : `All users retrieved`,
+                    "msg": limit ? `First ${limit} users retrieved` : `All users retrieved`,
+                    "total": `${countQuery} user(s) match your query`,
                     "data": data
                 });
                 console.log(limit ? `First ${limit} users retrieved` : 'All users retrieved', `\nSorted by: ${sortBy} \nDirection: ${direction}`);
-            }
-            else{
+            } else {
                 res.status(404).json({
-                    "msg" : "No users found",
+                    "msg": "No users found",
                     "data": data
                 });
                 console.log("No users found");
