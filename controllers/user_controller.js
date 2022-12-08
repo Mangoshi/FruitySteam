@@ -86,6 +86,8 @@ const readUsers = (req, res) => {
     let sortBy = req.query.sort ? req.query.sort : 'username'
     // Default: Ascending
     let direction = req.query.direction ? req.query.direction : 1
+    // Default: 1
+    let page = req.query.page ? req.query.page : 1
 
     // Initialising filter variables
     let searchBy
@@ -101,7 +103,11 @@ const readUsers = (req, res) => {
     // - Property to search by + search query,
     // - Property to sort by + direction (asc/desc),
     // - Amount of users to return (limit)
-    User.find({[searchBy]:searchQuery}).sort([[sortBy, direction]]).limit(limit)
+    User
+        .find({[searchBy]:searchQuery})
+        .sort([[sortBy, direction]])
+        .limit(limit)
+        .skip(limit * (page - 1))
         // Rather than just returning an array of ObjectIDs,
         // Populate the response wishlist array with the actual data, from the Game collection
         .populate("wishlist")
@@ -111,7 +117,7 @@ const readUsers = (req, res) => {
             if (data.length > 0) {
                 let countQuery = await User.countDocuments({[searchBy]: searchQuery})
                 res.status(200).json({
-                    "msg": limit ? `First ${limit} users retrieved` : `All users retrieved`,
+                    "msg": limit ? `${limit} users retrieved` : `All users retrieved`,
                     "total": `${countQuery} user(s) match your query`,
                     "data": data
                 });
