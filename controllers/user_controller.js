@@ -81,7 +81,7 @@ const loginUser = (req, res) => {
 // Read all users (with optional filters) //
 const readUsers = (req, res) => {
 
-    let limit = req.query.limit
+    let limit = req.query.limit ? req.query.limit : 100
     // Default: createdAt
     let sortBy = req.query.sort ? req.query.sort : 'createdAt'
     // Default: Descending
