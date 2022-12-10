@@ -29,7 +29,7 @@ const loginRequired = (req, res, next) => {
 	}
 }
 
-const userRequired = (req, res, next ) => {
+const sameUserOrAdminRequired = (req, res, next ) => {
 	// If user is an admin, move on
 	if(req.user.role === 'admin'){
 		next()
@@ -67,5 +67,5 @@ const adminRequired = (req, res, next) => {
 module.exports = {
 	loginRequired,
 	adminRequired,
-	userRequired
+	sameUserOrAdminRequired
 };

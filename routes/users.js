@@ -14,7 +14,7 @@ const {
 } = require('../controllers/user_controller');
 
 // Import adminRequired from authentication controller
-const { adminRequired, userRequired} = require('../controllers/auth_controller')
+const { adminRequired, sameUserOrAdminRequired} = require('../controllers/auth_controller')
 
 // Define routing
 router
@@ -23,11 +23,11 @@ router
     .post('/login', loginUser)
 
     // Authenticated routes
-    .get('/id/:id', userRequired, readUser)
+    .get('/id/:id', sameUserOrAdminRequired, readUser)
 
     // Admin routes
     .get('/', adminRequired, readUsers)
-    .put('/id/:id', adminRequired, updateUserByID)
+    .put('/id/:id', sameUserOrAdminRequired, updateUserByID)
     .delete('/id/:id', adminRequired, deleteUserByID)
 
 // Export routes for use in app.js
